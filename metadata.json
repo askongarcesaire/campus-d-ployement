@@ -1,0 +1,6 @@
+{
+  "name": "CampusHub Africa",
+  "description": "Réseau social académique des étudiants d'Afrique francophone : bourses, stages, partages de ressources, annuaire et messagerie en temps réel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

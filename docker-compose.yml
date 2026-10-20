@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Main Full-Stack Application
+  campushub-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: campushub_africa_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://campushub_user:campushub_secure_pass_2026@postgres:5432/campushub_db?schema=public
+      - JWT_SECRET=campushub_super_secret_jwt_key_2026_prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - campushub_network
+
+  # PostgreSQL 16 Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: campushub_africa_db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: campushub_user
+      POSTGRES_PASSWORD: campushub_secure_pass_2026
+      POSTGRES_DB: campushub_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U campushub_user -d campushub_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - campushub_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  campushub_network:
+    driver: bridge
