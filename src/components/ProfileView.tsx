@@ -13,6 +13,7 @@ import {
   getUniversitiesByCountry,
   getCountryMeta
 } from '../data/africanDirectory';
+import { CountryFlag } from './CountryFlag';
 
 interface ProfileViewProps {
   userId?: string | null;
@@ -391,40 +392,51 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ userId }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                    <span>Pays *</span>
-                    <span className="text-[10px] text-blue-700">{getCountryMeta(editForm.country || 'Sénégal').flag}</span>
+                    <span className="flex items-center gap-1.5">
+                      <CountryFlag country={editForm.country || 'Sénégal'} size="sm" />
+                      <span>Pays *</span>
+                    </span>
+                    <span className="text-[10px] text-blue-700 font-semibold flex items-center gap-1">
+                      <CountryFlag country={editForm.country || 'Sénégal'} size="sm" />
+                      <span>{editForm.country || 'Sénégal'}</span>
+                    </span>
                   </label>
-                  <select
-                    value={editForm.country || 'Sénégal'}
-                    onChange={(e) => {
-                      const newCountry = e.target.value;
-                      const cities = getCitiesByCountry(newCountry);
-                      const unis = getUniversitiesByCountry(newCountry);
-                      setEditForm({
-                        ...editForm,
-                        country: newCountry,
-                        city: cities[0] || '',
-                        institution: unis[0] || ''
-                      });
-                    }}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
-                  >
-                    {Object.entries(
-                      Object.values(AFRICAN_ACADEMIC_DIRECTORY).reduce((acc, c) => {
-                        acc[c.region] = acc[c.region] || [];
-                        acc[c.region].push(c);
-                        return acc;
-                      }, {} as Record<string, typeof AFRICAN_ACADEMIC_DIRECTORY[string][]>)
-                    ).map(([region, countries]) => (
-                      <optgroup key={region} label={`📍 ${region}`}>
-                        {countries.map((c) => (
-                          <option key={c.name} value={c.name}>
-                            {c.flag} {c.name}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
+                  <div className="relative flex items-center">
+                    <div className="absolute left-2.5 pointer-events-none select-none z-10 flex items-center">
+                      <CountryFlag country={editForm.country || 'Sénégal'} size="sm" />
+                    </div>
+                    <select
+                      value={editForm.country || 'Sénégal'}
+                      onChange={(e) => {
+                        const newCountry = e.target.value;
+                        const cities = getCitiesByCountry(newCountry);
+                        const unis = getUniversitiesByCountry(newCountry);
+                        setEditForm({
+                          ...editForm,
+                          country: newCountry,
+                          city: cities[0] || '',
+                          institution: unis[0] || ''
+                        });
+                      }}
+                      className="w-full pl-8 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-medium text-slate-800"
+                    >
+                      {Object.entries(
+                        Object.values(AFRICAN_ACADEMIC_DIRECTORY).reduce((acc, c) => {
+                          acc[c.region] = acc[c.region] || [];
+                          acc[c.region].push(c);
+                          return acc;
+                        }, {} as Record<string, typeof AFRICAN_ACADEMIC_DIRECTORY[string][]>)
+                      ).map(([region, countries]) => (
+                        <optgroup key={region} label={`📍 ${region}`}>
+                          {countries.map((c) => (
+                            <option key={c.name} value={c.name}>
+                              {c.flag} {c.name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Ville de résidence</label>

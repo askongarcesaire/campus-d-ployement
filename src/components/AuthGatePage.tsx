@@ -15,6 +15,7 @@ import {
   getUniversitiesByCountry,
   getCountryMeta
 } from '../data/africanDirectory';
+import { CountryFlag } from './CountryFlag';
 
 interface AuthGatePageProps {
   onExploreGuest?: () => void;
@@ -29,9 +30,9 @@ export const AuthGatePage: React.FC<AuthGatePageProps> = ({ onExploreGuest, onOp
 
   // Stats
   const [stats, setStats] = useState({
-    totalUsers: 7,
-    totalOpportunities: 4,
-    totalResources: 4
+    totalUsers: 0,
+    totalOpportunities: 0,
+    totalResources: 0
   });
 
   // Login form
@@ -81,18 +82,13 @@ export const AuthGatePage: React.FC<AuthGatePageProps> = ({ onExploreGuest, onOp
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    api.getReference().then(setReference).catch(() => {});
-    loadStats();
-  }, []);
-
-  const loadStats = async () => {
-    try {
-      const res = await api.admin.getStats().catch(() => null);
+    api.getReference().then(res => {
+      setReference(res);
       if (res?.stats) {
         setStats(res.stats);
       }
-    } catch (_e) {}
-  };
+    }).catch(() => {});
+  }, []);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,13 +177,6 @@ export const AuthGatePage: React.FC<AuthGatePageProps> = ({ onExploreGuest, onOp
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const fillDemo = (email: string, pass: string) => {
-    setTab('login');
-    setLoginEmail(email);
-    setLoginPassword(pass);
-    setError('');
   };
 
   return (
@@ -364,50 +353,6 @@ export const AuthGatePage: React.FC<AuthGatePageProps> = ({ onExploreGuest, onOp
               </div>
             )}
 
-            {/* Quick Demo Access Bar */}
-            {tab === 'login' && (
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-2xl">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-blue-900 mb-2">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Comptes de test pré-remplis :</span>
-                </div>
-                <div className="grid grid-cols-2 gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => fillDemo('mariama.diallo@ucad.sn', 'Etudiant@2026!')}
-                    className="p-2 text-left bg-white hover:bg-blue-100/70 border border-blue-200 rounded-xl text-slate-800 transition-colors"
-                  >
-                    <p className="text-xs font-bold text-blue-900 truncate">Mariama (UCAD Dakar)</p>
-                    <p className="text-[10px] text-slate-500 truncate">Étudiante Master 1</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fillDemo('kouame.jean@ufhb.edu.ci', 'Etudiant@2026!')}
-                    className="p-2 text-left bg-white hover:bg-blue-100/70 border border-blue-200 rounded-xl text-slate-800 transition-colors"
-                  >
-                    <p className="text-xs font-bold text-blue-900 truncate">Jean-P. (UFHB Abidjan)</p>
-                    <p className="text-[10px] text-slate-500 truncate">Étudiant Licence 3</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fillDemo('admin@campushub.africa', 'Admin@CampusHub2026!')}
-                    className="p-2 text-left bg-white hover:bg-amber-100/70 border border-amber-300 rounded-xl text-slate-800 transition-colors"
-                  >
-                    <p className="text-xs font-bold text-amber-900 truncate">Administrateur</p>
-                    <p className="text-[10px] text-slate-500 truncate">Tableau de bord & Modération</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fillDemo('moderateur@campushub.africa', 'Etudiant@2026!')}
-                    className="p-2 text-left bg-white hover:bg-blue-100/70 border border-blue-200 rounded-xl text-slate-800 transition-colors"
-                  >
-                    <p className="text-xs font-bold text-slate-900 truncate">Modératrice</p>
-                    <p className="text-[10px] text-slate-500 truncate">Gestion signalements</p>
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* TAB: Register */}
             {tab === 'register' && (
               <form onSubmit={handleRegisterSubmit} className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
@@ -487,30 +432,41 @@ export const AuthGatePage: React.FC<AuthGatePageProps> = ({ onExploreGuest, onOp
                   {/* PAYS (54 PAYS D'AFRIQUE + DIASPORA) */}
                   <div>
                     <label className="block text-[11px] font-bold text-slate-700 mb-1 flex items-center justify-between">
-                      <span>Pays d'Afrique *</span>
-                      <span className="text-[10px] text-blue-700 font-semibold">{getCountryMeta(country).flag} {country}</span>
+                      <span className="flex items-center gap-1.5">
+                        <CountryFlag country={country} size="sm" />
+                        <span>Pays d'Afrique *</span>
+                      </span>
+                      <span className="text-[10px] text-blue-700 font-semibold flex items-center gap-1">
+                        <CountryFlag country={country} size="sm" />
+                        <span>{country}</span>
+                      </span>
                     </label>
-                    <select
-                      value={country}
-                      onChange={(e) => handleCountryChange(e.target.value)}
-                      className="w-full px-2.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-600 focus:outline-none"
-                    >
-                      {Object.entries(
-                        Object.values(AFRICAN_ACADEMIC_DIRECTORY).reduce((acc, c) => {
-                          acc[c.region] = acc[c.region] || [];
-                          acc[c.region].push(c);
-                          return acc;
-                        }, {} as Record<string, typeof AFRICAN_ACADEMIC_DIRECTORY[string][]>)
-                      ).map(([region, countries]) => (
-                        <optgroup key={region} label={`📍 ${region}`}>
-                          {countries.map((c) => (
-                            <option key={c.name} value={c.name}>
-                              {c.flag} {c.name}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ))}
-                    </select>
+                    <div className="relative flex items-center">
+                      <div className="absolute left-2.5 pointer-events-none select-none z-10 flex items-center">
+                        <CountryFlag country={country} size="sm" />
+                      </div>
+                      <select
+                        value={country}
+                        onChange={(e) => handleCountryChange(e.target.value)}
+                        className="w-full pl-8 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-600 focus:outline-none font-medium text-slate-800"
+                      >
+                        {Object.entries(
+                          Object.values(AFRICAN_ACADEMIC_DIRECTORY).reduce((acc, c) => {
+                            acc[c.region] = acc[c.region] || [];
+                            acc[c.region].push(c);
+                            return acc;
+                          }, {} as Record<string, typeof AFRICAN_ACADEMIC_DIRECTORY[string][]>)
+                        ).map(([region, countries]) => (
+                          <optgroup key={region} label={`📍 ${region}`}>
+                            {countries.map((c) => (
+                              <option key={c.name} value={c.name}>
+                                {c.flag} {c.name}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   {/* VILLE DYNAMIQUE SELON PAYS */}

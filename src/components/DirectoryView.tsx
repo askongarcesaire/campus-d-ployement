@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { ReferenceData } from '../types';
 import { AFRICAN_ACADEMIC_DIRECTORY, getUniversitiesByCountry } from '../data/africanDirectory';
+import { CountryFlag } from './CountryFlag';
 
 export const DirectoryView: React.FC = () => {
   const { user, openUserProfile, startDirectChat, openAuthModal } = useAuth();
@@ -94,17 +95,31 @@ export const DirectoryView: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 pt-1">
           <div>
-            <label className="block text-[11px] font-bold text-slate-600 mb-1">Pays</label>
-            <select
-              value={selectedCountry}
-              onChange={(e) => {
-                setSelectedCountry(e.target.value);
-                setSelectedInstitution('ALL');
-                setPage(1);
-              }}
-              className="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
-            >
-              <option value="ALL">🌍 Tous les pays d'Afrique</option>
+            <label className="block text-[11px] font-bold text-slate-600 mb-1 flex items-center justify-between">
+              <span>Pays</span>
+              {selectedCountry !== 'ALL' && (
+                <span className="text-[10px] text-blue-700 font-semibold flex items-center gap-1">
+                  <CountryFlag country={selectedCountry} size="sm" />
+                  <span>{selectedCountry}</span>
+                </span>
+              )}
+            </label>
+            <div className="relative flex items-center">
+              {selectedCountry !== 'ALL' && (
+                <div className="absolute left-2.5 pointer-events-none select-none z-10 flex items-center">
+                  <CountryFlag country={selectedCountry} size="sm" />
+                </div>
+              )}
+              <select
+                value={selectedCountry}
+                onChange={(e) => {
+                  setSelectedCountry(e.target.value);
+                  setSelectedInstitution('ALL');
+                  setPage(1);
+                }}
+                className={`w-full ${selectedCountry !== 'ALL' ? 'pl-8' : 'px-2.5'} py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none`}
+              >
+                <option value="ALL">🌍 Tous les pays d'Afrique</option>
               {Object.entries(
                 Object.values(AFRICAN_ACADEMIC_DIRECTORY).reduce((acc, c) => {
                   acc[c.region] = acc[c.region] || [];
@@ -121,6 +136,7 @@ export const DirectoryView: React.FC = () => {
                 </optgroup>
               ))}
             </select>
+            </div>
           </div>
 
           <div>

@@ -30,10 +30,10 @@ export const LandingPage: React.FC = () => {
         const opps = await api.opportunities.list({ limit: 1 }).catch(() => null);
         const resList = await api.resources.list({ limit: 1 }).catch(() => null);
         setStats({
-          totalUsers: dir?.total || 7,
-          totalPosts: 4,
-          totalOpportunities: opps?.total || 4,
-          totalResources: resList?.total || 4
+          totalUsers: dir?.total ?? 0,
+          totalPosts: 0,
+          totalOpportunities: opps?.total ?? 0,
+          totalResources: resList?.total ?? 0
         });
       }
     } catch (_e) {}

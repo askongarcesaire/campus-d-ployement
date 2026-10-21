@@ -66,8 +66,19 @@ export function requireRole(allowedRoles: ('ADMIN' | 'MODERATOR')[]) {
 /* ==========================================================================
    1. REFERENCE DATA
    ========================================================================== */
-apiRouter.get('/reference/options', (_req, res) => {
+apiRouter.get('/reference/options', async (_req, res) => {
+  const [usersCount, oppsCount, resCount] = await Promise.all([
+    queryOne<{ count: string }>('SELECT COUNT(*) as count FROM users WHERE role = $1', ['STUDENT']).catch(() => ({ count: '0' })),
+    queryOne<{ count: string }>('SELECT COUNT(*) as count FROM opportunities WHERE status = $1', ['OPEN']).catch(() => ({ count: '0' })),
+    queryOne<{ count: string }>('SELECT COUNT(*) as count FROM resources').catch(() => ({ count: '0' }))
+  ]);
+
   res.json({
+    stats: {
+      totalUsers: parseInt(usersCount?.count || '0', 10),
+      totalOpportunities: parseInt(oppsCount?.count || '0', 10),
+      totalResources: parseInt(resCount?.count || '0', 10)
+    },
     countries: getAllAfricanCountries(),
     directory: AFRICAN_ACADEMIC_DIRECTORY,
     institutions: getUniversitiesByCountry('Sénégal'),

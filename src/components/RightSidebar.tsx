@@ -44,35 +44,39 @@ export const RightSidebar: React.FC = () => {
         </div>
 
         <div className="mt-3 space-y-3">
-          {upcomingOpportunities.map((op) => (
-            <div
-              key={op.id}
-              onClick={() => setActiveTab('opportunities')}
-              className="p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 transition-all cursor-pointer group"
-            >
-              <div className="flex items-center justify-between gap-1 mb-1">
-                <span className="text-[11px] font-semibold text-blue-700 truncate">{op.organization}</span>
-                {op.is_verified && (
-                  <span className="inline-flex items-center text-[10px] text-emerald-700 font-medium shrink-0">
-                    <CheckCircle2 className="w-3 h-3 mr-0.5" /> Vérifiée
+          {upcomingOpportunities.length === 0 ? (
+            <p className="text-xs text-slate-400 py-3 text-center">Aucune opportunité publiée pour l'instant.</p>
+          ) : (
+            upcomingOpportunities.map((op) => (
+              <div
+                key={op.id}
+                onClick={() => setActiveTab('opportunities')}
+                className="p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 transition-all cursor-pointer group"
+              >
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <span className="text-[11px] font-semibold text-blue-700 truncate">{op.organization}</span>
+                  {op.is_verified && (
+                    <span className="inline-flex items-center text-[10px] text-emerald-700 font-medium shrink-0">
+                      <CheckCircle2 className="w-3 h-3 mr-0.5" /> Vérifiée
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs font-semibold text-slate-800 group-hover:text-blue-900 line-clamp-2 leading-snug">
+                  {op.title}
+                </p>
+                <div className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-500">
+                  <Clock className="w-3 h-3 text-slate-400" />
+                  <span>
+                    {op.deadline
+                      ? `Clôture le ${new Date(op.deadline).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`
+                      : 'Candidatures ouvertes'}
                   </span>
-                )}
+                  <span>·</span>
+                  <span className="truncate">{op.country}</span>
+                </div>
               </div>
-              <p className="text-xs font-semibold text-slate-800 group-hover:text-blue-900 line-clamp-2 leading-snug">
-                {op.title}
-              </p>
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-500">
-                <Clock className="w-3 h-3 text-slate-400" />
-                <span>
-                  {op.deadline
-                    ? `Clôture le ${new Date(op.deadline).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`
-                    : 'Candidatures ouvertes'}
-                </span>
-                <span>·</span>
-                <span className="truncate">{op.country}</span>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
@@ -91,41 +95,45 @@ export const RightSidebar: React.FC = () => {
         </div>
 
         <div className="mt-3 space-y-3">
-          {suggestedStudents.map((st) => (
-            <div key={st.id} className="flex items-start justify-between gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors">
-              <div
-                onClick={() => openUserProfile(st.id)}
-                className="flex items-start gap-2.5 min-w-0 cursor-pointer flex-1"
-              >
-                <img
-                  src={st.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80'}
-                  alt=""
-                  className="w-9 h-9 rounded-xl object-cover shrink-0 border border-slate-200"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-slate-900 truncate hover:text-blue-700">
-                    {st.first_name} {st.last_name}
-                  </p>
-                  <p className="text-[11px] text-slate-500 truncate leading-tight">
-                    {st.field_of_study}
-                  </p>
-                  <p className="text-[10px] text-slate-400 truncate mt-0.5">
-                    {st.institution?.split('(')[0]?.trim()} · {st.country}
-                  </p>
-                </div>
-              </div>
-
-              {user && user.id !== st.id && (
-                <button
-                  onClick={() => startDirectChat(st.id)}
-                  className="p-1.5 text-blue-700 hover:bg-blue-100 rounded-lg transition-colors shrink-0"
-                  title="Envoyer un message"
+          {suggestedStudents.length === 0 ? (
+            <p className="text-xs text-slate-400 py-3 text-center">Aucun autre étudiant inscrit pour le moment.</p>
+          ) : (
+            suggestedStudents.map((st) => (
+              <div key={st.id} className="flex items-start justify-between gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors">
+                <div
+                  onClick={() => openUserProfile(st.id)}
+                  className="flex items-start gap-2.5 min-w-0 cursor-pointer flex-1"
                 >
-                  <MessageSquare className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          ))}
+                  <img
+                    src={st.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80'}
+                    alt=""
+                    className="w-9 h-9 rounded-xl object-cover shrink-0 border border-slate-200"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-slate-900 truncate hover:text-blue-700">
+                      {st.first_name} {st.last_name}
+                    </p>
+                    <p className="text-[11px] text-slate-500 truncate leading-tight">
+                      {st.field_of_study}
+                    </p>
+                    <p className="text-[10px] text-slate-400 truncate mt-0.5">
+                      {st.institution?.split('(')[0]?.trim()} · {st.country}
+                    </p>
+                  </div>
+                </div>
+
+                {user && user.id !== st.id && (
+                  <button
+                    onClick={() => startDirectChat(st.id)}
+                    className="p-1.5 text-blue-700 hover:bg-blue-100 rounded-lg transition-colors shrink-0"
+                    title="Envoyer un message"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
 

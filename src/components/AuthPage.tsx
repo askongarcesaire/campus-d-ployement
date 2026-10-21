@@ -7,6 +7,8 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { ReferenceData } from '../types';
+import { CountryFlag } from './CountryFlag';
+import { AFRICAN_ACADEMIC_DIRECTORY, getCountryMeta } from '../data/africanDirectory';
 
 export const AuthPage: React.FC = () => {
   const { login, register } = useAuth();
@@ -40,19 +42,19 @@ export const AuthPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [reference, setReference] = useState<ReferenceData | null>(null);
   const [stats, setStats] = useState({
-    totalUsers: 7,
-    totalOpportunities: 4,
-    totalResources: 4
+    totalUsers: 0,
+    totalOpportunities: 0,
+    totalResources: 0
   });
 
   useEffect(() => {
-    api.getReference().then(setReference).catch(() => {});
-    api.admin.getStats().then(res => {
+    api.getReference().then(res => {
+      setReference(res);
       if (res?.stats) {
         setStats({
-          totalUsers: res.stats.totalUsers || 7,
-          totalOpportunities: res.stats.totalOpportunities || 4,
-          totalResources: res.stats.totalResources || 4
+          totalUsers: res.stats.totalUsers || 0,
+          totalOpportunities: res.stats.totalOpportunities || 0,
+          totalResources: res.stats.totalResources || 0
         });
       }
     }).catch(() => {});
@@ -142,12 +144,6 @@ export const AuthPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const fillDemoAccount = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setError('');
   };
 
   return (
@@ -311,50 +307,6 @@ export const AuthPage: React.FC = () => {
               </div>
             )}
 
-            {/* Quick Demo Access Bar (Active when in Login mode) */}
-            {mode === 'login' && (
-              <div className="mb-5 p-3.5 bg-blue-50/80 border border-blue-200 rounded-2xl">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-blue-900 mb-2">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Tester avec un profil de démonstration (1 clic) :</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => fillDemoAccount('mariama.diallo@ucad.sn', 'Etudiant@2026!')}
-                    className="p-2 bg-white hover:bg-blue-100/60 border border-blue-200 rounded-xl text-left transition-colors"
-                  >
-                    <p className="text-xs font-bold text-blue-950 truncate">Mariama Diallo</p>
-                    <p className="text-[10px] text-slate-500 truncate">Master 1 Génie Logiciel, UCAD</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fillDemoAccount('kouame.jean@ufhb.edu.ci', 'Etudiant@2026!')}
-                    className="p-2 bg-white hover:bg-blue-100/60 border border-blue-200 rounded-xl text-left transition-colors"
-                  >
-                    <p className="text-xs font-bold text-blue-950 truncate">Jean-P. Kouamé</p>
-                    <p className="text-[10px] text-slate-500 truncate">Licence 3 Éco, UFHB Abidjan</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fillDemoAccount('admin@campushub.africa', 'Admin@CampusHub2026!')}
-                    className="p-2 bg-white hover:bg-amber-100/60 border border-amber-200 rounded-xl text-left transition-colors"
-                  >
-                    <p className="text-xs font-bold text-amber-900 truncate">Administrateur</p>
-                    <p className="text-[10px] text-slate-500 truncate">Gouvernance & Modération</p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fillDemoAccount('moderateur@campushub.africa', 'Etudiant@2026!')}
-                    className="p-2 bg-white hover:bg-blue-100/60 border border-blue-200 rounded-xl text-left transition-colors"
-                  >
-                    <p className="text-xs font-bold text-slate-900 truncate">Modératrice</p>
-                    <p className="text-[10px] text-slate-500 truncate">Validation des bourses</p>
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* Mode 1: Registration Form */}
             {mode === 'register' && (
               <form onSubmit={handleRegisterSubmit} className="space-y-3.5 max-h-[62vh] overflow-y-auto pr-1">
@@ -428,16 +380,42 @@ export const AuthPage: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Pays d'études *</label>
-                    <select
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none"
-                    >
-                      {reference?.countries.map((c) => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
-                    </select>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <CountryFlag country={country} size="sm" />
+                        <span>Pays d'études *</span>
+                      </span>
+                      <span className="text-[10px] text-blue-700 font-semibold flex items-center gap-1">
+                        <CountryFlag country={country} size="sm" />
+                        <span>{country}</span>
+                      </span>
+                    </label>
+                    <div className="relative flex items-center">
+                      <div className="absolute left-2.5 pointer-events-none select-none z-10 flex items-center">
+                        <CountryFlag country={country} size="sm" />
+                      </div>
+                      <select
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        className="w-full pl-8 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-medium text-slate-800"
+                      >
+                        {Object.entries(
+                          Object.values(AFRICAN_ACADEMIC_DIRECTORY).reduce((acc, c) => {
+                            acc[c.region] = acc[c.region] || [];
+                            acc[c.region].push(c);
+                            return acc;
+                          }, {} as Record<string, typeof AFRICAN_ACADEMIC_DIRECTORY[string][]>)
+                        ).map(([region, countries]) => (
+                          <optgroup key={region} label={`📍 ${region}`}>
+                            {countries.map((c) => (
+                              <option key={c.name} value={c.name}>
+                                {c.flag} {c.name}
+                              </option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-slate-700 mb-1">Ville</label>

@@ -229,6 +229,11 @@ export interface ReferenceData {
   opportunityCategories: { id: string; label: string }[];
   resourceCategories: { id: string; label: string }[];
   directory?: Record<string, any>;
+  stats?: {
+    totalUsers: number;
+    totalOpportunities: number;
+    totalResources: number;
+  };
 }
 
 export type LogoType = 

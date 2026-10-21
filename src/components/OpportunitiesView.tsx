@@ -7,6 +7,8 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Opportunity, ReferenceData } from '../types';
+import { CountryFlag } from './CountryFlag';
+import { getCountryMeta } from '../data/africanDirectory';
 
 export const OpportunitiesView: React.FC = () => {
   const { user, openAuthModal, openReportModal } = useAuth();
@@ -202,9 +204,9 @@ export const OpportunitiesView: React.FC = () => {
               onChange={(e) => setSelectedCountry(e.target.value)}
               className="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
             >
-              <option value="ALL">Tous les pays</option>
+              <option value="ALL">🌍 Tous les pays</option>
               {reference?.countries.map((ct) => (
-                <option key={ct} value={ct}>{ct}</option>
+                <option key={ct} value={ct}>{getCountryMeta(ct).flag} {ct}</option>
               ))}
             </select>
           </div>
@@ -488,16 +490,30 @@ export const OpportunitiesView: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Pays concerné *</label>
-                  <select
-                    value={createForm.country}
-                    onChange={(e) => setCreateForm({ ...createForm, country: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none"
-                  >
-                    {reference?.countries.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
+                  <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <CountryFlag country={createForm.country} size="sm" />
+                      <span>Pays concerné *</span>
+                    </span>
+                    <span className="text-[10px] text-blue-700 font-semibold flex items-center gap-1">
+                      <CountryFlag country={createForm.country} size="sm" />
+                      <span>{createForm.country}</span>
+                    </span>
+                  </label>
+                  <div className="relative flex items-center">
+                    <div className="absolute left-2.5 pointer-events-none select-none z-10 flex items-center">
+                      <CountryFlag country={createForm.country} size="sm" />
+                    </div>
+                    <select
+                      value={createForm.country}
+                      onChange={(e) => setCreateForm({ ...createForm, country: e.target.value })}
+                      className="w-full pl-8 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none font-medium text-slate-800"
+                    >
+                      {reference?.countries.map((c) => (
+                        <option key={c} value={c}>{getCountryMeta(c).flag} {c}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 
