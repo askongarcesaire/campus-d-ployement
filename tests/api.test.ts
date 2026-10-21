@@ -92,7 +92,7 @@ async function runTests() {
     await query(`
       INSERT INTO post_comments (id, post_id, author_id, content)
       VALUES ($1, $2, $3, 'Je peux te passer les fiches dès demain en amphi !')
-    `, [commentId, testPostId, 'usr_student_003']);
+    `, [commentId, testPostId, adminUser.id]);
 
     const commentRecord = await queryOne('SELECT * FROM post_comments WHERE id = $1', [commentId]);
     assert(commentRecord !== null, 'Comment recorded in database');
